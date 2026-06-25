@@ -127,6 +127,9 @@ export function SeatTable(props: Props) {
             >
               {vc > 0 && <span className="vote-badge">{vc}</span>}
               {rearrange && <span className="seat-num-chip">{seat}</span>}
+              {p.name?.trim() && (
+                <span className="pname" style={{ maxWidth: seatPx + 26 }}>{p.name.trim()}</span>
+              )}
               <RoleArt roleId={p.roleId} size={seatPx} />
               {seatPx >= 34 && <span className="nm">{label(p)}</span>}
             </div>
