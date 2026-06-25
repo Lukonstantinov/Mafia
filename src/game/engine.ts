@@ -135,3 +135,59 @@ function listNames(names: string[]): string {
 export function seatLabel(p: Player): string {
   return p.name?.trim() ? p.name.trim() : `#${p.seat}`;
 }
+
+// ---- Day vote helpers ----------------------------------------------------
+
+/**
+ * Seats going into the runoff: the top two vote-getters. If the second place
+ * is tied, every seat tied for it is included (so the runoff may hold >2).
+ */
+export function topTwo(votes: Record<number, number>): number[] {
+  const entries = Object.entries(votes)
+    .map(([s, v]) => [Number(s), v] as [number, number])
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1]);
+  if (entries.length <= 2) return entries.map((e) => e[0]);
+  const cutoff = entries[1][1]; // second-place vote count
+  return entries.filter(([, v]) => v >= cutoff).map(([s]) => s);
+}
+
+/** Seats with the most votes (may be >1 on a tie — mayor breaks it). */
+export function leaders(votes: Record<number, number>): number[] {
+  const entries = Object.entries(votes)
+    .map(([s, v]) => [Number(s), v] as [number, number])
+    .filter(([, v]) => v > 0);
+  if (entries.length === 0) return [];
+  const max = Math.max(...entries.map((e) => e[1]));
+  return entries.filter(([, v]) => v === max).map(([s]) => s);
+}
+
+// ---- Statistics ----------------------------------------------------------
+
+import type { RoundRecord, SeatStats } from '../types';
+
+export function computeStats(rounds: RoundRecord[], players: Player[]): Record<number, SeatStats> {
+  const out: Record<number, SeatStats> = {};
+  for (const p of players) out[p.seat] = { targeted: 0, checked: 0, healed: 0, silenced: 0, votes: 0, total: 0 };
+  const bump = (seat: number, key: keyof SeatStats) => {
+    if (!out[seat]) return;
+    out[seat][key]++;
+    out[seat].total++;
+  };
+  for (const r of rounds) {
+    for (const pk of r.picks) {
+      if (pk.stepId === 'mafia') bump(pk.targetSeat, 'targeted');
+      else if (pk.stepId === 'police') bump(pk.targetSeat, 'checked');
+      else if (pk.stepId === 'doctor') bump(pk.targetSeat, 'healed');
+      else if (pk.stepId === 'butterfly') bump(pk.targetSeat, 'silenced');
+    }
+    for (const tally of [r.votes1, r.votes2]) {
+      if (!tally) continue;
+      for (const [seat, n] of Object.entries(tally)) {
+        const s = Number(seat);
+        if (out[s]) { out[s].votes += n; out[s].total += n; }
+      }
+    }
+  }
+  return out;
+}

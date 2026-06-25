@@ -4,10 +4,10 @@ import type {
   Lang, Screen, RoleDef, SetupState, GameSettings, Player, GameState, Pick, RoundRecord,
 } from './types';
 import { BUILTIN_ROLES, DEFAULT_SETTINGS, DEFAULT_NIGHT_ORDER, PRESETS } from './game/defaults';
-import { assignSeats, reshuffleSeats } from './game/engine';
+import { assignSeats, reshuffleSeats, resolveRound } from './game/engine';
 
 function emptyGame(): GameState {
-  return { started: false, round: 1, stepIdx: 0, picks: [], log: [], rounds: [], roundStartTs: 0 };
+  return { started: false, round: 1, phase: 'night', stepIdx: 0, picks: [], nightDeaths: [], log: [], rounds: [], roundStartTs: 0 };
 }
 
 function emptySetup(): SetupState {
@@ -31,6 +31,7 @@ interface AppState {
   applyPreset: (id: keyof typeof PRESETS) => void;
   setCount: (n: number) => void;
   setNames: (raw: string) => void;
+  setSeatName: (i: number, name: string) => void;
   setRoleCount: (roleId: string, n: number) => void;
   setNightOrder: (order: string[]) => void;
   addRole: (r: RoleDef) => void;
@@ -46,7 +47,9 @@ interface AppState {
   startGame: () => void;
   addPick: (p: Pick) => void;
   proceedStep: () => void;
-  commitResolution: (deaths: number[], saved: number[], story: string | undefined) => void;
+  revealNight: () => void;
+  confirmNightDeaths: (deaths: number[], saved: number[]) => void;
+  commitVote: (votes1: Record<number, number>, votes2: Record<number, number>, votedOut: number | null, story: string | undefined) => void;
   finishGame: () => void;
 
   roleById: () => Record<string, RoleDef>;
@@ -89,6 +92,15 @@ export const useStore = create<AppState>()(
       setNames: (raw) => {
         const names = raw.split(',').map((s) => s.trim());
         set((st) => ({ setup: { ...st.setup, names } }));
+      },
+
+      setSeatName: (i, name) => {
+        set((st) => {
+          const names = [...st.setup.names];
+          while (names.length <= i) names.push('');
+          names[i] = name;
+          return { setup: { ...st.setup, names } };
+        });
       },
 
       setRoleCount: (roleId, n) => {
@@ -144,7 +156,7 @@ export const useStore = create<AppState>()(
 
       addPick: (p) => {
         set((st) => {
-          // replace any existing pick for this step at the current slot — allow multiple per step
+          // append a pick for the current step — allow multiple per step
           const picks = [...st.game.picks, p];
           return { game: { ...st.game, picks } };
         });
@@ -154,15 +166,32 @@ export const useStore = create<AppState>()(
         set((st) => ({ game: { ...st.game, stepIdx: st.game.stepIdx + 1 } }));
       },
 
-      commitResolution: (deaths, saved, story) => {
+      // Night steps are done — reveal what happened (dawn report).
+      revealNight: () => set((st) => ({ game: { ...st.game, phase: 'dawn' } })),
+
+      // Mayor confirms the night's deaths → grey them, then move to the day vote.
+      confirmNightDeaths: (deaths) => {
         set((st) => {
           const deadSet = new Set(deaths);
           const players = st.players.map((p) => (deadSet.has(p.seat) ? { ...p, dead: true } : p));
+          return { players, game: { ...st.game, phase: 'vote', nightDeaths: deaths } };
+        });
+      },
+
+      // Day vote resolved — record the round, eliminate the voted-out seat, next round.
+      commitVote: (votes1, votes2, votedOut, story) => {
+        set((st) => {
+          const players = votedOut != null
+            ? st.players.map((p) => (p.seat === votedOut ? { ...p, dead: true } : p))
+            : st.players;
           const record: RoundRecord = {
             round: st.game.round,
             picks: st.game.picks,
-            deaths,
-            saved,
+            deaths: st.game.nightDeaths,
+            saved: resolveRound(st.game.picks).saved,
+            votes1,
+            votes2,
+            votedOut,
             story,
             startTs: st.game.roundStartTs,
             endTs: Date.now(),
@@ -172,8 +201,10 @@ export const useStore = create<AppState>()(
             game: {
               ...st.game,
               round: st.game.round + 1,
+              phase: 'night',
               stepIdx: 0,
               picks: [],
+              nightDeaths: [],
               rounds: [...st.game.rounds, record],
               roundStartTs: Date.now(),
             },

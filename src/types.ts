@@ -40,8 +40,11 @@ export interface Pick {
 export interface RoundRecord {
   round: number;
   picks: Pick[];
-  deaths: number[];      // seats confirmed dead this round
+  deaths: number[];      // night deaths confirmed at dawn
   saved: number[];       // seats the doctor saved from a mafia hit
+  votes1?: Record<number, number>;  // day vote, round 1 tally (seat -> votes)
+  votes2?: Record<number, number>;  // day vote, runoff tally
+  votedOut?: number | null;         // seat eliminated by the day vote
   story?: string;
   startTs: number;
   endTs?: number;
@@ -54,12 +57,26 @@ export interface SetupState {
   nightOrder: string[];           // ordered roleIds that act at night
 }
 
+export type Phase = 'night' | 'dawn' | 'vote';
+
 export interface GameState {
   started: boolean;
   round: number;
-  stepIdx: number;
-  picks: Pick[];                  // current round, in progress
+  phase: Phase;                   // night -> dawn (reveal) -> vote
+  stepIdx: number;                // index into the night steps
+  picks: Pick[];                  // current round's night picks, in progress
+  nightDeaths: number[];          // confirmed at dawn, pending round commit
   log: { ts: number; stepId: string; targetSeat: number }[];
   rounds: RoundRecord[];
   roundStartTs: number;
+}
+
+// Per-seat aggregate statistics across a whole game.
+export interface SeatStats {
+  targeted: number;   // times a mafia targeted this seat
+  checked: number;    // times police checked
+  healed: number;     // times doctor healed
+  silenced: number;   // times butterfly silenced
+  votes: number;      // total day-vote votes received (both rounds)
+  total: number;      // sum of all of the above
 }

@@ -118,6 +118,35 @@ export const en = {
   check_isMafia: 'is Mafia',
   check_notMafia: 'not Mafia',
 
+  // Dawn (night reveal before the vote)
+  dawn_ready: 'The night is over.',
+  dawn_reveal: 'Reveal the night',
+  dawn_title: 'Dawn',
+  dawn_sub: 'What happened during the night.',
+  dawn_quiet: 'The night was quiet — no one was attacked.',
+  dawn_confirm: 'Confirm who died in the night:',
+  dawn_toVote: 'Continue to the vote',
+
+  // Day vote
+  vote_title: 'Day vote',
+  vote_sub: 'Tap a player to add a vote. Counts show on each seat.',
+  vote_runoffTitle: 'Runoff',
+  vote_runoffSub: 'Vote again between the top two.',
+  vote_votes: 'votes',
+  vote_reset: 'Reset',
+  vote_lock: 'Lock the top two',
+  vote_confirmOut: 'Count the runoff',
+  vote_skip: 'No vote this round',
+  vote_between: 'Runoff between',
+  vote_outTitle: 'Voted out',
+  vote_outSub: 'Confirm who the town eliminates.',
+  vote_eliminate: 'Eliminate',
+  vote_noOne: 'No one is voted out',
+
+  // Statistics
+  stats_title: 'Statistics',
+  stats_legend: '🔪 targeted · 🔍 checked · 🩺 healed · 🦋 silenced · ⚖ votes · Σ total',
+
   // Resolution
   res_title: 'Resolve the round',
   res_sub: 'Confirm who dies. Doctor saves cancel a mafia hit.',

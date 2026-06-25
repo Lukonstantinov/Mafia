@@ -9,7 +9,7 @@ export function Setup() {
   const setup = useStore((s) => s.setup);
   const roleDefs = useStore((s) => s.roleDefs);
   const setCount = useStore((s) => s.setCount);
-  const setNames = useStore((s) => s.setNames);
+  const setSeatName = useStore((s) => s.setSeatName);
   const setRoleCount = useStore((s) => s.setRoleCount);
   const doAssign = useStore((s) => s.doAssign);
   const go = useStore((s) => s.go);
@@ -43,12 +43,19 @@ export function Setup() {
 
         <div className="field">
           <label>{t('setup_names')}</label>
-          <input
-            className="input"
-            placeholder={t('setup_names_ph')}
-            defaultValue={setup.names.join(', ')}
-            onChange={(e) => setNames(e.target.value)}
-          />
+          <div className="list">
+            {Array.from({ length: setup.count }).map((_, i) => (
+              <div className="name-bar" key={i}>
+                <span className="name-seat">{i + 1}</span>
+                <input
+                  className="input"
+                  placeholder={`${t('seat')} ${i + 1}`}
+                  value={setup.names[i] ?? ''}
+                  onChange={(e) => setSeatName(i, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         <div style={{ marginTop: 6 }}>

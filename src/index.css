@@ -385,7 +385,17 @@ button {
 .deal-face .role-desc { font-size: 13px; color: var(--mute); text-align: center; }
 
 /* ---- Table god view ---- */
-.table-ring { position: relative; aspect-ratio: 1; width: 100%; max-width: 380px; margin: 8px auto 16px; }
+.table-ring {
+  position: relative;
+  width: min(78vw, 300px);
+  height: min(78vw, 300px);
+  align-self: center;
+  margin: 6px auto 18px;
+  z-index: 0;
+}
+/* keep the absolutely-positioned seats from painting over the controls below */
+.steptabs, .promptbar, .phase-head, .toolrow, .banner, .note,
+.report-line, .pick-row, .btn, .stat-row { position: relative; z-index: 1; }
 .tseat {
   position: absolute; transform: translate(-50%,-50%);
   display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -456,3 +466,56 @@ button {
   flex: 0 0 auto; font-size: 15px;
 }
 .checkrow.on .checkbox { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+/* ---- Name bars (setup) ---- */
+.name-bar { display: flex; align-items: center; gap: 10px; }
+.name-seat {
+  width: 34px; height: 34px; flex: 0 0 auto;
+  border-radius: 50%; background: var(--panel2); border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-family: 'Playfair Display', serif; color: var(--lamp);
+  font-size: 14px;
+}
+
+/* ---- Vote badge on table seats ---- */
+.tseat { position: relative; }
+.vote-badge {
+  position: absolute; top: -4px; right: 4px;
+  min-width: 22px; height: 22px; padding: 0 5px;
+  border-radius: 999px; background: var(--lamp); color: #1a1206;
+  font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--bg);
+}
+.tseat.votable .roleart { cursor: pointer; }
+.tseat.runoff .roleart { box-shadow: 0 0 0 3px var(--lamp); }
+.tseat.dim { opacity: 0.3; pointer-events: none; }
+
+/* ---- Phase banner ---- */
+.phase-head {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 13px 15px; margin-bottom: 12px;
+}
+.phase-head .icon { font-size: 22px; }
+.phase-head .lead { font-weight: 700; font-family: 'Playfair Display', serif; }
+.phase-head .sub { font-size: 12px; color: var(--mute); }
+
+/* ---- Dawn report ---- */
+.report-line {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 0; border-bottom: 1px solid var(--line);
+}
+.report-line .ic { font-size: 18px; width: 24px; text-align: center; }
+
+/* ---- Stats table ---- */
+.stat-row {
+  display: grid; grid-template-columns: 1fr repeat(5, 30px) 40px;
+  gap: 4px; align-items: center;
+  padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px;
+}
+.stat-row.head { color: var(--mute); font-size: 11px; font-weight: 600; }
+.stat-row .nm { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.stat-row .nm span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.stat-row .v { text-align: center; font-variant-numeric: tabular-nums; }
+.stat-row .tot { text-align: center; font-weight: 700; color: var(--lamp); }
+.stat-row.dead .nm { opacity: 0.5; text-decoration: line-through; }

@@ -26,6 +26,8 @@ export function RoleArt({ roleId, size = 64, color }: Props) {
   const c = color ?? role?.color ?? '#8A93A8';
   const art = role && ART[role.id];
 
+  // slight colored halo at the edge, in the role's own colour
+  const glow = Math.max(2, Math.round(size * 0.05));
   const frame: React.CSSProperties = {
     width: size,
     height: size,
@@ -35,6 +37,7 @@ export function RoleArt({ roleId, size = 64, color }: Props) {
     justifyContent: 'center',
     overflow: 'hidden',
     border: `1.5px solid ${hex(c, 0.55)}`,
+    filter: `drop-shadow(0 0 ${glow}px ${hex(c, 0.6)})`,
     flex: '0 0 auto',
   };
 
