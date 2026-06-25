@@ -3,6 +3,7 @@ import { useStore } from '../store';
 import { useT, roleName, roleDesc, useRoleById, useNightSteps, Sheet, Modal } from '../components/ui';
 import { TopBar } from '../components/TopBar';
 import { RoleArt } from '../components/RoleArt';
+import { SeatTable, type TableView } from '../components/SeatTable';
 import { resolveRound, checkWin, generateStory, seatLabel, topTwo, leaders, computeStats } from '../game/engine';
 import type { Player } from '../types';
 
@@ -18,6 +19,7 @@ export function Table() {
   const startGame = useStore((s) => s.startGame);
   const addPick = useStore((s) => s.addPick);
   const proceedStep = useStore((s) => s.proceedStep);
+  const reorderSeats = useStore((s) => s.reorderSeats);
   const revealNight = useStore((s) => s.revealNight);
   const confirmNightDeaths = useStore((s) => s.confirmNightDeaths);
   const commitVote = useStore((s) => s.commitVote);
@@ -27,6 +29,12 @@ export function Table() {
   const [inspect, setInspect] = useState<Player | null>(null);
   const [sheet, setSheet] = useState<SheetKind>(null);
   const [finishStep, setFinishStep] = useState(0);
+
+  // table layout controls
+  const [view, setView] = useState<TableView>('circle');
+  const [zoom, setZoom] = useState(1);
+  const [rearrange, setRearrange] = useState(false);
+  const seatOrder = game.seatOrder.length ? game.seatOrder : players.map((p) => p.seat);
 
   // day-vote local state
   const [votes, setVotes] = useState<Record<number, number>>({});
@@ -115,12 +123,17 @@ export function Table() {
         <span className="mute" style={{ fontSize: 13 }}>{alive.length} {t('table_alive')}</span>
       </div>
 
-      <TableRing
+      <SeatTable
         players={players}
+        seatOrder={seatOrder}
+        view={view}
+        zoom={zoom}
+        rearrange={rearrange}
         targeted={targetedSeats}
         selected={selected}
         votes={game.phase === 'vote' && game.started ? votes : undefined}
         runoff={game.phase === 'vote' && voteStage === 2 ? runoff : undefined}
+        onReorder={reorderSeats}
         onTap={(p) => {
           if (!game.started) { setInspect(p); return; }
           if (game.phase === 'night') onSeatTapNight(p);
@@ -129,8 +142,26 @@ export function Table() {
             addVote(p.seat);
           }
         }}
-        roleName={(p) => roleName(roleById[p.roleId], t)}
+        label={(p) => `${p.seat}. ${roleName(roleById[p.roleId], t)}`}
       />
+
+      <div className="table-controls">
+        <div className="seg">
+          <button className={view === 'circle' ? 'on' : ''} onClick={() => setView('circle')}>◯ {t('view_circle')}</button>
+          <button className={view === 'square' ? 'on' : ''} onClick={() => setView('square')}>▢ {t('view_square')}</button>
+        </div>
+        <div className="seg">
+          <button onClick={() => setZoom((z) => Math.max(0.6, +(z - 0.15).toFixed(2)))}>−</button>
+          <span className="zoomval">{Math.round(zoom * 100)}%</span>
+          <button onClick={() => setZoom((z) => Math.min(2, +(z + 0.15).toFixed(2)))}>+</button>
+        </div>
+        {game.started && (
+          <button className={'seg-btn' + (rearrange ? ' on' : '')} onClick={() => setRearrange((r) => !r)}>
+            ⇅ {t('view_rearrange')}
+          </button>
+        )}
+      </div>
+      {rearrange && <div className="note center" style={{ marginBottom: 10 }}>{t('view_rearrangeHint')}</div>}
 
       {!game.started ? (
         <>
@@ -404,45 +435,6 @@ function VoteOutConfirm({ open, candidates, preselect, players, votes, onCancel,
 }
 
 // ---- Ring ---------------------------------------------------------------
-function TableRing({ players, targeted, selected, votes, runoff, onTap, roleName }: {
-  players: Player[];
-  targeted: Set<number>;
-  selected: number | null;
-  votes?: Record<number, number>;
-  runoff?: number[];
-  onTap: (p: Player) => void;
-  roleName: (p: Player) => string;
-}) {
-  const n = players.length;
-  const R = 40;
-  return (
-    <div className="table-ring">
-      {players.map((p, i) => {
-        const ang = (i / n) * 2 * Math.PI - Math.PI / 2;
-        const x = 50 + R * Math.cos(ang);
-        const y = 50 + R * Math.sin(ang);
-        const inRunoff = runoff?.includes(p.seat);
-        const dim = runoff && !p.dead && !inRunoff;
-        const cls = 'tseat'
-          + (p.dead ? ' dead' : '')
-          + (targeted.has(p.seat) ? ' targeted' : '')
-          + (selected === p.seat ? ' selected' : '')
-          + (votes && !p.dead ? ' votable' : '')
-          + (inRunoff ? ' runoff' : '')
-          + (dim ? ' dim' : '');
-        const vc = votes?.[p.seat] ?? 0;
-        return (
-          <div key={p.seat} className={cls} style={{ left: `${x}%`, top: `${y}%` }} onClick={() => onTap(p)}>
-            {vc > 0 && <span className="vote-badge">{vc}</span>}
-            <RoleArt roleId={p.roleId} size={48} />
-            <span className="nm">{p.seat}. {roleName(p)}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 // ---- Subwindows ---------------------------------------------------------
 function PicksSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const t = useT();

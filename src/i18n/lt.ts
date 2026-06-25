@@ -108,6 +108,11 @@ export const lt: Dict = {
   check_isMafia: 'yra mafija',
   check_notMafia: 'ne mafija',
 
+  view_circle: 'Ratas',
+  view_square: 'Stalas',
+  view_rearrange: 'Perstatyti',
+  view_rearrangeHint: 'Vilk žaidėją į naują vietą — kiti pasislinks.',
+
   dawn_ready: 'Naktis baigėsi.',
   dawn_reveal: 'Atskleisti naktį',
   dawn_title: 'Aušra',

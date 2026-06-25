@@ -118,6 +118,12 @@ export const en = {
   check_isMafia: 'is Mafia',
   check_notMafia: 'not Mafia',
 
+  // Table layout controls
+  view_circle: 'Circle',
+  view_square: 'Table',
+  view_rearrange: 'Rearrange',
+  view_rearrangeHint: 'Drag a player to a new spot — others shift to make room.',
+
   // Dawn (night reveal before the vote)
   dawn_ready: 'The night is over.',
   dawn_reveal: 'Reveal the night',

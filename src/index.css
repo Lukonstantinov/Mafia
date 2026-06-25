@@ -385,22 +385,52 @@ button {
 .deal-face .role-desc { font-size: 13px; color: var(--mute); text-align: center; }
 
 /* ---- Table god view ---- */
-.table-ring {
-  position: relative;
-  width: min(78vw, 300px);
-  height: min(78vw, 300px);
+/* scrollable, height-bounded area so the table never overlaps the controls */
+.table-scroll {
+  max-width: 100%;
+  max-height: 48vh;
+  overflow: auto;
+  margin: 6px auto 12px;
   align-self: center;
-  margin: 6px auto 18px;
-  z-index: 0;
+  border-radius: var(--r);
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
 }
-/* keep the absolutely-positioned seats from painting over the controls below */
-.steptabs, .promptbar, .phase-head, .toolrow, .banner, .note,
-.report-line, .pick-row, .btn, .stat-row { position: relative; z-index: 1; }
+.seat-table { position: relative; margin: 0 auto; }
+.table-center { position: absolute; inset: 0; pointer-events: none; }
+.seat-table.square .table-surface {
+  position: absolute; left: 24%; top: 24%; right: 24%; bottom: 24%;
+  border-radius: 18px;
+  background: radial-gradient(120% 120% at 50% 30%, rgba(231,180,90,0.10), rgba(22,30,46,0.5));
+  border: 1px solid var(--line);
+}
 .tseat {
   position: absolute; transform: translate(-50%,-50%);
   display: flex; flex-direction: column; align-items: center; gap: 3px;
-  width: 62px;
 }
+.tseat.grab { cursor: grab; touch-action: none; }
+.tseat.dragging { z-index: 20; }
+.tseat.dragging .roleart { box-shadow: 0 0 0 3px var(--lamp); }
+.seat-num-chip {
+  position: absolute; top: -4px; left: 2px; z-index: 3;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  border-radius: 999px; background: var(--panel2); border: 1px solid var(--lamp);
+  color: var(--lamp); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* keep controls above the table's absolutely-positioned seats */
+.steptabs, .promptbar, .phase-head, .toolrow, .banner, .note,
+.report-line, .pick-row, .btn, .stat-row, .table-controls { position: relative; z-index: 1; }
+
+/* table layout controls */
+.table-controls { display: flex; gap: 8px; align-items: center; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.table-controls .seg { display: inline-flex; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.table-controls .seg button { background: transparent; color: var(--mute); padding: 7px 12px; font-size: 13px; font-weight: 600; }
+.table-controls .seg button.on { background: var(--lamp); color: #1a1206; }
+.table-controls .seg .zoomval { min-width: 44px; text-align: center; align-self: center; font-size: 12px; color: var(--mute); font-variant-numeric: tabular-nums; }
+.table-controls .seg-btn { background: var(--panel); border: 1px solid var(--line); color: var(--ink); padding: 7px 13px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.table-controls .seg-btn.on { background: var(--lamp); color: #1a1206; border-color: transparent; }
 .tseat .nm { font-size: 11px; color: var(--mute); max-width: 62px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
 .tseat.dead { opacity: 0.4; }
 .tseat.dead .nm { text-decoration: line-through; }
@@ -478,7 +508,6 @@ button {
 }
 
 /* ---- Vote badge on table seats ---- */
-.tseat { position: relative; }
 .vote-badge {
   position: absolute; top: -4px; right: 4px;
   min-width: 22px; height: 22px; padding: 0 5px;

@@ -66,6 +66,7 @@ export interface GameState {
   stepIdx: number;                // index into the night steps
   picks: Pick[];                  // current round's night picks, in progress
   nightDeaths: number[];          // confirmed at dawn, pending round commit
+  seatOrder: number[];            // display order of seats around the table
   log: { ts: number; stepId: string; targetSeat: number }[];
   rounds: RoundRecord[];
   roundStartTs: number;

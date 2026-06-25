@@ -7,7 +7,7 @@ import { BUILTIN_ROLES, DEFAULT_SETTINGS, DEFAULT_NIGHT_ORDER, PRESETS } from '.
 import { assignSeats, reshuffleSeats, resolveRound } from './game/engine';
 
 function emptyGame(): GameState {
-  return { started: false, round: 1, phase: 'night', stepIdx: 0, picks: [], nightDeaths: [], log: [], rounds: [], roundStartTs: 0 };
+  return { started: false, round: 1, phase: 'night', stepIdx: 0, picks: [], nightDeaths: [], seatOrder: [], log: [], rounds: [], roundStartTs: 0 };
 }
 
 function emptySetup(): SetupState {
@@ -47,6 +47,7 @@ interface AppState {
   startGame: () => void;
   addPick: (p: Pick) => void;
   proceedStep: () => void;
+  reorderSeats: (order: number[]) => void;
   revealNight: () => void;
   confirmNightDeaths: (deaths: number[], saved: number[]) => void;
   commitVote: (votes1: Record<number, number>, votes2: Record<number, number>, votedOut: number | null, story: string | undefined) => void;
@@ -147,12 +148,14 @@ export const useStore = create<AppState>()(
 
       startGame: () => {
         set((st) => ({
-          game: { ...emptyGame(), started: true, roundStartTs: Date.now() },
+          game: { ...emptyGame(), started: true, roundStartTs: Date.now(), seatOrder: st.players.map((p) => p.seat) },
           screen: 'table',
           // re-marking players as alive in case of a fresh game on same roster
           players: st.players.map((p) => ({ ...p, dead: false, silencedForRound: undefined })),
         }));
       },
+
+      reorderSeats: (order) => set((st) => ({ game: { ...st.game, seatOrder: order } })),
 
       addPick: (p) => {
         set((st) => {

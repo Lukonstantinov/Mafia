@@ -108,6 +108,11 @@ export const ru: Dict = {
   check_isMafia: 'это мафия',
   check_notMafia: 'не мафия',
 
+  view_circle: 'Круг',
+  view_square: 'Стол',
+  view_rearrange: 'Переставить',
+  view_rearrangeHint: 'Перетащите игрока на новое место — остальные подвинутся.',
+
   dawn_ready: 'Ночь закончилась.',
   dawn_reveal: 'Открыть ночь',
   dawn_title: 'Рассвет',
