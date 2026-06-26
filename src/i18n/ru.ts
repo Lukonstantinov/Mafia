@@ -108,6 +108,13 @@ export const ru: Dict = {
   check_isMafia: 'это мафия',
   check_notMafia: 'не мафия',
 
+  crop_title: 'Обрезать иконку',
+  crop_pick: 'Выбрать фото',
+  crop_change: 'Выбрать другое',
+  crop_save: 'Сохранить иконку',
+  crop_hint: 'Тащите, чтобы двигать · ползунок или щипок для масштаба',
+  icon_reset: 'Сбросить по умолчанию',
+
   view_circle: 'Круг',
   view_square: 'Стол',
   view_rearrange: 'Переставить',

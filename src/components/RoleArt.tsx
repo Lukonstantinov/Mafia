@@ -1,4 +1,5 @@
 import { useRoleById } from './ui';
+import { useStore } from '../store';
 
 interface Props {
   roleId?: string;       // when omitted or unknown -> question mark
@@ -22,9 +23,10 @@ const ART: Record<string, string> = {
  */
 export function RoleArt({ roleId, size = 64, color }: Props) {
   const roleById = useRoleById();
+  const userIcon = useStore((s) => (roleId ? s.roleIcons[roleId] : undefined));
   const role = roleId ? roleById[roleId] : undefined;
   const c = color ?? role?.color ?? '#8A93A8';
-  const art = role && ART[role.id];
+  const art = userIcon ?? (role && ART[role.id] ? import.meta.env.BASE_URL + ART[role.id] : undefined);
 
   // slight colored halo at the edge, in the role's own colour
   const glow = Math.max(2, Math.round(size * 0.05));
@@ -45,7 +47,7 @@ export function RoleArt({ roleId, size = 64, color }: Props) {
     return (
       <span className="roleart" style={frame}>
         <img
-          src={import.meta.env.BASE_URL + art}
+          src={art}
           width={size}
           height={size}
           alt=""

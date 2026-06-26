@@ -118,6 +118,14 @@ export const en = {
   check_isMafia: 'is Mafia',
   check_notMafia: 'not Mafia',
 
+  // Icon cropper
+  crop_title: 'Crop icon',
+  crop_pick: 'Choose a photo',
+  crop_change: 'Choose another',
+  crop_save: 'Save icon',
+  crop_hint: 'Drag to move · slider or pinch to zoom',
+  icon_reset: 'Reset to default',
+
   // Table layout controls
   view_circle: 'Circle',
   view_square: 'Table',

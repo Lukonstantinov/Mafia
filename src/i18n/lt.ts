@@ -108,6 +108,13 @@ export const lt: Dict = {
   check_isMafia: 'yra mafija',
   check_notMafia: 'ne mafija',
 
+  crop_title: 'Apkarpyti ikoną',
+  crop_pick: 'Pasirinkti nuotrauką',
+  crop_change: 'Pasirinkti kitą',
+  crop_save: 'Išsaugoti ikoną',
+  crop_hint: 'Tempk, kad judintum · slankiklis ar suspaudimas mastel. keisti',
+  icon_reset: 'Atstatyti numatytąją',
+
   view_circle: 'Ratas',
   view_square: 'Stalas',
   view_rearrange: 'Perstatyti',

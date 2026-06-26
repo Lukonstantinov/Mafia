@@ -23,6 +23,7 @@ interface AppState {
   players: Player[];
   dealIdx: number;
   game: GameState;
+  roleIcons: Record<string, string>;   // roleId -> user-cropped image data URL
 
   setLang: (l: Lang) => void;
   go: (s: Screen) => void;
@@ -36,6 +37,8 @@ interface AppState {
   setNightOrder: (order: string[]) => void;
   addRole: (r: RoleDef) => void;
   setSettings: (patch: Partial<GameSettings>) => void;
+  setRoleIcon: (roleId: string, dataUrl: string) => void;
+  clearRoleIcon: (roleId: string) => void;
 
   // deal
   doAssign: () => void;
@@ -68,6 +71,7 @@ export const useStore = create<AppState>()(
       players: [],
       dealIdx: 0,
       game: emptyGame(),
+      roleIcons: {},
 
       setLang: (l) => set({ lang: l }),
       go: (s) => set({ screen: s }),
@@ -127,6 +131,11 @@ export const useStore = create<AppState>()(
       },
 
       setSettings: (patch) => set((st) => ({ settings: { ...st.settings, ...patch } })),
+
+      setRoleIcon: (roleId, dataUrl) => set((st) => ({ roleIcons: { ...st.roleIcons, [roleId]: dataUrl } })),
+      clearRoleIcon: (roleId) => set((st) => {
+        const next = { ...st.roleIcons }; delete next[roleId]; return { roleIcons: next };
+      }),
 
       doAssign: () => {
         const players = assignSeats(get().setup);
@@ -248,6 +257,7 @@ export const useStore = create<AppState>()(
         dealIdx: st.dealIdx,
         game: st.game,
         screen: st.screen,
+        roleIcons: st.roleIcons,
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<AppState>;
@@ -257,6 +267,7 @@ export const useStore = create<AppState>()(
         const setup = { ...emptySetup(), ...(p.setup ?? {}) };
         const settings = { ...DEFAULT_SETTINGS, ...(p.settings ?? {}) };
         const players = Array.isArray(p.players) ? p.players : [];
+        const roleIcons = (p.roleIcons && typeof p.roleIcons === 'object') ? p.roleIcons : {};
         // If a game is mid-table but has no roster, fall back to home (safe).
         const screen = p.screen === 'table' && players.length === 0 ? 'home' : (p.screen ?? 'home');
         return {
@@ -267,6 +278,7 @@ export const useStore = create<AppState>()(
           settings,
           players,
           screen,
+          roleIcons,
           // always rebuild full role list = built-ins + persisted custom
           roleDefs: [...BUILTIN_ROLES, ...((p.roleDefs as RoleDef[]) ?? [])],
         };
