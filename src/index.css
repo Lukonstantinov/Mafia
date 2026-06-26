@@ -70,8 +70,14 @@ button {
 }
 
 .screen {
-  padding: 22px 18px 40px;
+  /* keep content clear of the iPhone status bar / Dynamic Island and notch */
+  padding:
+    calc(22px + env(safe-area-inset-top))
+    calc(18px + env(safe-area-inset-right))
+    calc(40px + env(safe-area-inset-bottom))
+    calc(18px + env(safe-area-inset-left));
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -252,7 +258,7 @@ button {
 .sheet-grab { width: 40px; height: 4px; border-radius: 4px; background: var(--mute2); margin: 10px auto 4px; }
 .sheet-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 18px 12px; }
 .sheet-head .x { background: transparent; color: var(--mute); font-size: 16px; padding: 6px; }
-.sheet-body { padding: 0 18px 26px; overflow-y: auto; }
+.sheet-body { padding: 0 18px calc(26px + env(safe-area-inset-bottom)); overflow-y: auto; }
 
 /* ---- Modal ---- */
 .modal-backdrop {
