@@ -34,7 +34,7 @@ export function Table() {
   const [view, setView] = useState<TableView>('circle');
   const [zoom, setZoom] = useState(1);
   const [rearrange, setRearrange] = useState(false);
-  const seatOrder = game.seatOrder.length ? game.seatOrder : players.map((p) => p.seat);
+  const seatOrder = game.seatOrder?.length ? game.seatOrder : players.map((p) => p.seat);
 
   // day-vote local state
   const [votes, setVotes] = useState<Record<number, number>>({});

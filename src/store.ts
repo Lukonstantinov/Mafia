@@ -251,9 +251,22 @@ export const useStore = create<AppState>()(
       }),
       merge: (persisted, current) => {
         const p = (persisted ?? {}) as Partial<AppState>;
+        // Normalize state saved by older versions so missing fields can never
+        // crash the app (e.g. a pre-seatOrder game showing a blank screen).
+        const game = { ...emptyGame(), ...(p.game ?? {}) };
+        const setup = { ...emptySetup(), ...(p.setup ?? {}) };
+        const settings = { ...DEFAULT_SETTINGS, ...(p.settings ?? {}) };
+        const players = Array.isArray(p.players) ? p.players : [];
+        // If a game is mid-table but has no roster, fall back to home (safe).
+        const screen = p.screen === 'table' && players.length === 0 ? 'home' : (p.screen ?? 'home');
         return {
           ...current,
           ...p,
+          game,
+          setup,
+          settings,
+          players,
+          screen,
           // always rebuild full role list = built-ins + persisted custom
           roleDefs: [...BUILTIN_ROLES, ...((p.roleDefs as RoleDef[]) ?? [])],
         };
